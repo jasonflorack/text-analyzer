@@ -5,62 +5,101 @@ from porter_stemmer import PorterStemmer
 
 
 class Analyzer:
+    """Reads text from a given input_file, removes stop words from another file (stopwords.txt),
+    removes all non-alphabetical text, stems words into their root form, computes the frequency
+    of each term, and prints out the 20 most commonly occurring terms (not including stop words)
+    in descending order of frequency.
+    """
 
     def __init__(self):
         self.input_words = []
-        self.filtered_words = []
-        self.root_words = []
-        self.frequency = dict()
-        self.common_terms = []
-
-        self.stopwords_file = "stopwords.txt"
-        if os.path.exists(self.stopwords_file):
-            # Create list of stopwords from file
-            self.stopwords = open(self.stopwords_file, 'r').read().split()
-        else:
-            raise Exception('Stopwords file does not exist!')
-
+        self.stopwords = []
         self.__get_input_file()
+        self.__get_stopwords_file()
 
     def __get_input_file(self):
+        """Read and store data from the input file (provided in command-line arguments)"""
         try:
-            self.input_file = str(sys.argv[1])
+            input_file = str(sys.argv[1])
         except IndexError:
             raise Exception('No input file given!')
 
-        if os.path.exists(self.input_file):
-            self.input_file = open(self.input_file, 'r').read()
+        if os.path.exists(input_file):
+            input_file = open(input_file, 'r').read()
             # Remove punctuation from input file; create list of each word in file
-            self.input_words = re.sub(r'[^\w\s]', '', self.input_file).split()
+            self.input_words = re.sub(r'[^\w\s]', '', input_file).split()
         else:
             raise Exception('Input file does not exist!')
 
-    def remove_stop_words(self):
-        for word in self.input_words:
-            if not word.lower() in self.stopwords:
-                self.filtered_words.append(word)
+    def __get_stopwords_file(self):
+        """Read and store data from the stopwords file"""
+        stopwords_file = "stopwords.txt"
 
-    def compute_frequency(self):
-        for word in self.root_words:
-            if word not in self.frequency.keys():
-                self.frequency[word] = 1
-            else:
-                self.frequency[word] += 1
+        if os.path.exists(stopwords_file):
+            # Create list of stopwords from file
+            self.stopwords = open(stopwords_file, 'r').read().split()
+        else:
+            raise Exception('Stopwords file does not exist!')
 
-    def display_common_terms(self):
-        self.common_terms = sorted(self.frequency.items(), key=lambda x: x[1], reverse=True)
-        for i in range (20):
-            print (self.common_terms[i])
+    @staticmethod
+    def remove_stop_words(input_words, stopwords):
+        """Return a list of 'filtered_words' from the provided list of 'input_words' by
+        removing any words from the provided list of 'stopwords'
+        """
+        filtered_words = []
+        for word in input_words:
+            if not word.lower() in stopwords:
+                filtered_words.append(word)
+        return filtered_words
 
-    def stem_words(self, words):
+    @staticmethod
+    def stem(words):
+        """Return a list of 'stemmed_words' from the provided list of 'words' by
+        using a Porter Stemming Algorithm to stem all words to their
+        morphological root (e.g., jumping, jumps, jumped -> jump)
+        """
         p = PorterStemmer()
         stemmed_words = []
         for word in words:
             stemmed_words.append(p.stem(word, 0, len(word)-1))
         return stemmed_words
 
+    @staticmethod
+    def compute_term_frequency(words):
+        """Return a 'frequency' dict from the provided list of 'words' which contains
+        each word (key) and the number of times it appears (value)
+        """
+        frequency = dict()
+        for word in words:
+            if word not in frequency.keys():
+                frequency[word] = 1
+            else:
+                frequency[word] += 1
+        return frequency
+
+    @staticmethod
+    def sort_top_terms(frequency, count):
+        """Return a 'top_common_terms' list of tuples from the provided 'frequency' dict
+        which contains the top 'count' number of key/value pairs, in descending order
+        """
+        top_common_terms = []
+        all_common_terms = sorted(frequency.items(), key=lambda x: x[1], reverse=True)
+        for i in range (count):
+            top_common_terms.append(all_common_terms[i])
+        return top_common_terms
+
+    @staticmethod
+    def print_top_terms(terms):
+        """Print the provided 'terms' list of tuples"""
+        print('After filtering out stopwords, the provided text contains these 20 most commonly occurring root terms:')
+        print('------------------------------------------------------------------------------------------------------')
+        for term in terms:
+            print(term[0] + ' : ' + str(term[1]) + ' occurrences')
+
+
 a = Analyzer()
-a.remove_stop_words()
-a.root_words = a.stem_words(a.filtered_words)
-a.compute_frequency()
-a.display_common_terms()
+filtered_words = a.remove_stop_words(a.input_words, a.stopwords)
+root_words = a.stem(filtered_words)
+frequency = a.compute_term_frequency(root_words)
+common_terms = a.sort_top_terms(frequency, 20)
+a.print_top_terms(common_terms)
