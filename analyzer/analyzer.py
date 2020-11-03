@@ -7,10 +7,10 @@ from . import porter_stemmer
 
 
 class Analyzer:
-    """Reads text from a given input_file, removes stop words from another file (stopwords.txt),
-    removes all non-alphabetical text, stems words into their root form, computes the frequency
-    of each term, and prints out the 20 most commonly occurring terms (not including stop words)
-    in descending order of frequency.
+    """This app collects all of the words in a text file (which the user provides), removes any stop words found
+    in another file (which the user also provides), removes all non-alphabetical text, stems all remaining
+    words into their root form, computes the frequency of each term, and prints out the 20 most commonly
+    occurring terms in descending order of frequency.
     """
 
     def __init__(self):
