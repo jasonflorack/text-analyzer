@@ -2,10 +2,7 @@ import os
 import re
 import sys
 
-if __name__ == '__main__':
-    import porter_stemmer
-else:
-    from . import porter_stemmer
+from . import porter_stemmer
 
 
 class Analyzer:
@@ -16,9 +13,11 @@ class Analyzer:
     """
 
     def __init__(self):
+        self.input_file = None
         self.input_words = []
         self.stopwords = []
         self.__get_input_file()
+        self.__remove_punctuation_from_input_file()
         self.__get_stopwords_file()
 
     def __get_input_file(self):
@@ -29,11 +28,13 @@ class Analyzer:
             raise Exception('No input file given!')
 
         if os.path.exists(input_file):
-            input_file = open(input_file, 'r').read()
-            # Remove punctuation from input file; create list of each word in file
-            self.input_words = re.sub(r'[^\w\s]', '', input_file).split()
+            self.input_file = open(input_file, 'r').read()
         else:
             raise Exception('Input file does not exist!')
+
+    def __remove_punctuation_from_input_file(self):
+        """Remove punctuation from input file; create list of each word in file"""
+        self.input_words = re.sub(r'[^\w\s]', '', self.input_file).split()
 
     def __get_stopwords_file(self):
         """Read and store data from the stopwords file"""
