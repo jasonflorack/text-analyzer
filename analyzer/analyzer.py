@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+from sys import version_info
 
 from . import porter_stemmer
 
@@ -13,38 +14,61 @@ class Analyzer:
     """
 
     def __init__(self):
-        self.input_file = None
-        self.input_words = []
-        self.stopwords = []
-        self.__get_input_file()
-        self.__remove_punctuation_from_input_file()
-        self.__get_stopwords_file()
+        self.prompt = None
+        self.establish_input_method()
 
-    def __get_input_file(self):
-        """Read and store data from the input file (provided in command-line arguments)"""
-        try:
-            input_file = str(sys.argv[1])
-        except IndexError:
-            raise Exception('No input file given!')
+    @staticmethod
+    def clear_screen():
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-        if os.path.exists(input_file):
-            self.input_file = open(input_file, 'r').read()
+    @staticmethod
+    def greeting():
+        print ('******************************************************************************************************')
+        print ('                                      Text File Analyzer')
+        print ('******************************************************************************************************')
+        print ('This app collects all of the words in a text file (which you provide), removes any stop words found')
+        print ('in another file (which you also provide), removes all non-alphabetical text, stems all remaining')
+        print ('words into their root form, computes the frequency of each term, and prints out the 20 most commonly')
+        print ('occurring terms in descending order of frequency.')
+        print('')
+
+    def establish_input_method(self):
+        if version_info.major == 3:  # Python3 is being used, so use 'input' method
+            self.prompt = input
+        elif version_info.major == 2:  # Python2 is being used, so use 'raw_input' method
+            try:
+                self.prompt = raw_input
+            except NameError:
+                pass
+
+    def get_input_words(self):
+        """Prompt user for input file location, read the file, then return a list of the words
+        it contains
+        """
+        filename = self.prompt("Please enter the path of the text file to be analyzed (e.g., input/Text1.txt): ")
+        if os.path.isfile(filename):
+            input_text = open(filename, 'r').read()
+            return self.remove_punctuation(input_text)
         else:
-            raise Exception('Input file does not exist!')
+            print("This file does not exist.  Please try again.")
+            return []
 
-    def __remove_punctuation_from_input_file(self):
-        """Remove punctuation from input file; create list of each word in file"""
-        self.input_words = re.sub(r'[^\w\s]', '', self.input_file).split()
+    @staticmethod
+    def remove_punctuation(text):
+        """Remove punctuation from text; return list of each word in text"""
+        return re.sub(r'[^\w\s]', '', text).split()
 
-    def __get_stopwords_file(self):
-        """Read and store data from the stopwords file"""
-        stopwords_file = "input/stopwords.txt"
-
-        if os.path.exists(stopwords_file):
+    def get_stopwords(self):
+        """Prompt user for stopwords file location, read the file, then return a list of words
+        it contains
+        """
+        stopwords_file = self.prompt("Please enter the path of the stopwords file (e.g., input/stopwords.txt): ")
+        if os.path.isfile(stopwords_file):
             # Create list of stopwords from file
-            self.stopwords = open(stopwords_file, 'r').read().split()
+            return open(stopwords_file, 'r').read().split()
         else:
-            raise Exception('Stopwords file does not exist!')
+            print("This file does not exist.  Please try again.")
+            return []
 
     @staticmethod
     def remove_stop_words(input_words, stopwords):

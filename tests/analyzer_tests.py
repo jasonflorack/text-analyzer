@@ -4,6 +4,13 @@ from .context import analyzer
 from analyzer import analyzer
 
 
+def test_remove_punctuation():
+    a = analyzer.Analyzer()
+    text = 'I; really! should. stop:: putting??? so&*, many punctuation marks In my Sentences!!!&!$)'
+    result = a.remove_punctuation(text)
+
+    assert result == ['I', 'really', 'should', 'stop', 'putting', 'so', 'many', 'punctuation', 'marks', 'In', 'my', 'Sentences']
+
 def test_remove_stop_words():
     a = analyzer.Analyzer()
     input_words = ['a', 'fantastic', 'test']
