@@ -1,7 +1,11 @@
 import os
 import re
 import sys
-from porter_stemmer import PorterStemmer
+
+if __name__ == '__main__':
+    import porter_stemmer
+else:
+    from . import porter_stemmer
 
 
 class Analyzer:
@@ -33,7 +37,7 @@ class Analyzer:
 
     def __get_stopwords_file(self):
         """Read and store data from the stopwords file"""
-        stopwords_file = "stopwords.txt"
+        stopwords_file = "../input/stopwords.txt"
 
         if os.path.exists(stopwords_file):
             # Create list of stopwords from file
@@ -58,7 +62,7 @@ class Analyzer:
         using a Porter Stemming Algorithm to stem all words to their
         morphological root (e.g., jumping, jumps, jumped -> jump)
         """
-        p = PorterStemmer()
+        p = porter_stemmer.PorterStemmer()
         stemmed_words = []
         for word in words:
             stemmed_words.append(p.stem(word, 0, len(word)-1))
