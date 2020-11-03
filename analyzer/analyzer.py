@@ -95,7 +95,9 @@ class Analyzer:
     @staticmethod
     def print_top_terms(terms):
         """Print the provided 'terms' list of tuples"""
+        print('')
         print('After filtering out stopwords, the provided text contains these 20 most commonly occurring root terms:')
         print('------------------------------------------------------------------------------------------------------')
         for term in terms:
             print(term[0] + ' : ' + str(term[1]) + ' occurrences')
+        print('')
