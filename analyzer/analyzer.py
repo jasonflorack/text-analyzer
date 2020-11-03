@@ -37,7 +37,7 @@ class Analyzer:
 
     def __get_stopwords_file(self):
         """Read and store data from the stopwords file"""
-        stopwords_file = "../input/stopwords.txt"
+        stopwords_file = "input/stopwords.txt"
 
         if os.path.exists(stopwords_file):
             # Create list of stopwords from file
@@ -99,11 +99,3 @@ class Analyzer:
         print('------------------------------------------------------------------------------------------------------')
         for term in terms:
             print(term[0] + ' : ' + str(term[1]) + ' occurrences')
-
-
-a = Analyzer()
-filtered_words = a.remove_stop_words(a.input_words, a.stopwords)
-root_words = a.stem(filtered_words)
-frequency = a.compute_term_frequency(root_words)
-common_terms = a.sort_top_terms(frequency, 20)
-a.print_top_terms(common_terms)
